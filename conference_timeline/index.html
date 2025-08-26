@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['timeline']});
+      google.charts.setOnLoadCallback(loadData);
+      function loadData() {
+        fetch('conference_data.json').then(response => response.json()).then(data => {
+            drawChart(data);
+        });
+      }
+      function deltaInDays(date1, date2) {
+        const diffTime = Math.abs(date2 - date1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+      }
+      function filterData(data) {
+        const now = new Date();
+        const threeMonthsLater = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate(), 23, 59, 59);
+        let new_array = [];
+        for (const element of data) {            
+            const paper_deadline = new Date(element.paper_deadline);
+            if (element.abstract_deadline == null) {
+                element.abstract_deadline = element.paper_deadline;
+            }
+            const abstract_deadline = new Date(element.abstract_deadline);
+            if (element.notification_date == null) {
+                element.notification_date = element.start_date;
+            }
+            const notification_date = new Date(element.notification_date);
+            const conference_start = new Date(element.start_date);
+            const conference_end = new Date(element.end_date);
+
+            // abstract to paper 
+            if (abstract_deadline >= now && abstract_deadline <= threeMonthsLater) {
+                new_array.push([element.title, 'abstract-to-paper', `days left ${deltaInDays(now, abstract_deadline)}`, abstract_deadline, paper_deadline]);
+            }
+            
+            // paper to review
+            if (notification_date >= now && notification_date <= threeMonthsLater) {
+                new_array.push([element.title, 'paper-to-review', `days left ${deltaInDays(now, notification_date)}`, paper_deadline, notification_date]);
+            }
+
+            // conference itself 
+            if (conference_start >= now && conference_start <= threeMonthsLater) {
+                new_array.push([element.title, 'conference', `days left ${deltaInDays(now, conference_start)}`, conference_start, conference_end]);
+            }
+        };
+        return new_array;
+      }
+
+      function drawChart(data) {
+        var container = document.getElementById('timeline');
+        var chart = new google.visualization.Timeline(container);
+        var dataTable = new google.visualization.DataTable();
+
+        dataTable.addColumn({ type: 'string', id: 'Conference Name' });
+        dataTable.addColumn({ type: 'string', id: 'Event' });
+        dataTable.addColumn({ type: 'string', role: 'tooltip' });
+        dataTable.addColumn({ type: 'date', id: 'Start' });
+        dataTable.addColumn({ type: 'date', id: 'End' });
+
+        var rows = filterData(data);
+        rows.push(['Now', '', '', new Date(), new Date()]);
+        console.log(rows);
+        dataTable.addRows(rows);
+        
+        chart.draw(dataTable);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="timeline" style="height: 180pxs"></div>
+  </body>
+</html>

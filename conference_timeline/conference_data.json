@@ -1,0 +1,18 @@
+[
+    {
+        "title": "WACV",
+        "abstract_deadline": null,
+        "paper_deadline": "2025-09-12 23:59:59",
+        "notification_date": "2025-11-06 23:59:59",
+        "start_date": "2026-05-03 00:00:00",
+        "end_date": "2026-05-05 00:00:00"
+    },
+    {
+        "title": "ICLR",
+        "abstract_deadline": "2025-09-19 23:59:59",
+        "paper_deadline": "2025-09-24 23:59:59",
+        "notification_date": "2025-11-11 23:59:59",
+        "start_date": "2026-05-03 00:00:00",
+        "end_date": "2026-05-05 00:00:00"
+    }
+]
